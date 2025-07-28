@@ -1,0 +1,462 @@
+{
+  "name": "Cat AI Assistant",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "6846bf64-0cbb-414c-8ac2-814cd5ee22d4",
+      "name": "Incoming Messages",
+      "webhookId": "5fa62904-1d17-400e-8c06-092cefe406c3",
+      "credentials": {
+        "telegramApi": {
+          "id": "7D7NqCtS69stZIdn",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "16ba9d0c-4c4f-4964-854f-80a688e52263",
+                    "leftValue": "={{ $json.message.text || \"\"}}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Text"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "a74253e4-db6f-4370-b147-35353246567e",
+                    "leftValue": "error",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Error"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "f288b8ec-f0b7-4549-996f-4456a1ceb37b",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b52e210d-9b11-45f4-b53f-f04a02cad90d",
+              "name": "text",
+              "value": "={{ $json.message.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        448,
+        0
+      ],
+      "id": "31a0b6ae-0796-461e-8a31-bad71389323c",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        544,
+        272
+      ],
+      "id": "9d4c958d-3d06-46a5-8dc1-ae70b79dc75f",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "wRASczwAGyPd55Ph",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "limit": 20,
+        "filters": {
+          "labelIds": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Label_Names_or_IDs', ``, 'string') }}",
+          "readStatus": "unread",
+          "receivedAfter": "={{ $fromAI('date') }}"
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        912,
+        304
+      ],
+      "id": "ffc461c3-bc35-47d3-a445-4d5076ff1060",
+      "name": "Read Message",
+      "webhookId": "4ade08dd-1e7d-4c20-86a6-4bfb403969d6",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YZm7e78WrTcBvtXh",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Incoming Messages').item.json.message.chat.id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        736,
+        288
+      ],
+      "id": "e3d3dc32-cc2b-4408-8bd0-ff16b1f13db4",
+      "name": "Simple Memory1"
+    },
+    {
+      "parameters": {
+        "resource": "all",
+        "limit": "={{ $fromAI('amount_of_articles') }}",
+        "additionalFields": {
+          "keyword": "={{ $fromAI('search_query') }}"
+        }
+      },
+      "type": "n8n-nodes-base.hackerNewsTool",
+      "typeVersion": 1,
+      "position": [
+        1072,
+        304
+      ],
+      "id": "8ce87f91-b8f6-42f3-a870-b632361bb16d",
+      "name": "Hacker News"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('To', ``, 'string') }}",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "emailType": "text",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        1216,
+        320
+      ],
+      "id": "99b49175-8044-412a-bbe3-78edf6e5e9bb",
+      "name": "send Message",
+      "webhookId": "4ade08dd-1e7d-4c20-86a6-4bfb403969d6",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YZm7e78WrTcBvtXh",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.text }}",
+        "options": {
+          "systemMessage": "=you are a helpful assistant who responds to user's request in a fun, friendly but professional way. Today's date is {{ $now }}.\n\nGuidelines:\n\nEmail Management:\n-Use the Read Email tool to fetch unread emails from the inbox. only include non-promotional emails in summaries. Summarize Each Email y including the Sender, Message Date, Subject, and a brief summary of the content.\n-For sending emails, use the send Email tool. Ensure to include the recipient's address, subject, and body f the email. Format the body as HTML if required.\n\nCalendar Management:\n- To retrieve calendar emails, use the et Calendar tool. If The user hasn't specified a date, default to todays events.\n- For adding a new event, use set calendar tool. Include the event title, date, time, and any relevant description.\nTask Management\n- Use the airtable search record tool to find specific task or records related to user queries.\n- Use the airtable Create record tool to add new task if the wants to create or log something.\n\nWeb and Information queries:\n- For General information queries, use the serpAPI to fetch results from google search.\n- if the user request the latest news on specific topics, use the hacker news tool to fetch articles. specify keywords if provided\n\nWeather information:\n- Use the weather_data tool to retrieve current weather information. Input should be the city name provide by user.\n\nCalculation:\n-Use the calculator tools for any arithmetic or mathematical queries.\n\nMemory and context:\n-remember to use the memory to maintain the context within the current conversation session.\nif the user switches topics or request clarifications, reset context as needed \n\nResponse Structure:\n-keep response concise and relevant to the user's question\nprovide additional details if the user ask for elaboration, otherwise stick to the question.\n "
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        896,
+        0
+      ],
+      "id": "d00edcbd-49b7-4255-88e3-06db0127d3d9",
+      "name": "Cat AI agent"
+    },
+    {
+      "parameters": {
+        "toolDescription": "={{ $('Incoming Messages').item.json.message.text }}",
+        "url": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('URL', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        1392,
+        288
+      ],
+      "id": "edef6d23-3df3-478d-8229-057420880891",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "content": "When A message is send in telegram, it is triggered in this node",
+        "height": 208,
+        "width": 256,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        -32
+      ],
+      "typeVersion": 1,
+      "id": "0a4248b2-501d-400d-91ae-2690230577c9",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "authentication": "webhook",
+        "content": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        1504,
+        -16
+      ],
+      "id": "03410a45-7940-4f3d-825e-e07ad2050cf3",
+      "name": "Discord",
+      "webhookId": "ebd4a46c-5fa4-4da2-98eb-d26431bf8858",
+      "credentials": {
+        "discordWebhookApi": {
+          "id": "XfwjXyF4Ssjo3JpQ",
+          "name": "Discord Webhook account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "Switch Feild Send The Messages Based on different formats such as text or audio etc"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        192,
+        -16
+      ],
+      "typeVersion": 1,
+      "id": "1e50f4d9-c339-4756-aeef-ec2c7a70ebd2",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "AI agent play a major role, as it is interact with all the tools and give the required output through the chat model",
+        "height": 400,
+        "width": 416,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        832,
+        -80
+      ],
+      "typeVersion": 1,
+      "id": "d8cdf185-efcc-4480-b2fb-bae5ab610765",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "Output Goes To Discord Server",
+        "height": 208,
+        "width": 272,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1424,
+        -64
+      ],
+      "typeVersion": 1,
+      "id": "36cc1142-2a75-41dc-8f7f-ff209993102f",
+      "name": "Sticky Note3"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Incoming Messages": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Cat AI agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Cat AI agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Message": {
+      "ai_tool": [
+        [
+          {
+            "node": "Cat AI agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "Cat AI agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hacker News": {
+      "ai_tool": [
+        [
+          {
+            "node": "Cat AI agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "send Message": {
+      "ai_tool": [
+        [
+          {
+            "node": "Cat AI agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cat AI agent": {
+      "main": [
+        [
+          {
+            "node": "Discord",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "ai_tool": [
+        [
+          {
+            "node": "Cat AI agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Discord": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "35fbdd3e-dd88-45ab-9aca-baab72037a7d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "29e97cedb4a0f27731e953869101f3673e6dd8905ab225b6b3b91846d0bb0133"
+  },
+  "id": "YIkNuquab7NzCuZ4",
+  "tags": []
+}
