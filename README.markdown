@@ -32,7 +32,7 @@ To run this project, you need the following:
    Follow the [n8n installation guide](https://docs.n8n.io/getting-started/installation/) to set up n8n on your system.
 
 3. **Import the Workflow**:
-   - Copy the contents of `workflow.json` (provided in the repository).
+   - Copy the contents of `Cat AI Assistant workflow.json` (provided in the repository).
    - In the n8n interface, go to **Workflows > Import from File** and paste the JSON content.
    - Save the workflow.
 
@@ -52,7 +52,7 @@ To run this project, you need the following:
    - Check the specified Discord channel for task results.
 
 ## Workflow Details
-The workflow (`workflow.json`) includes the following nodes:
+The workflow (`Cat AI Assistant workflow.json`) includes the following nodes:
 - **Telegram Trigger**: Listens for incoming messages from the Telegram bot.
 - **Switch Node**: Routes tasks based on command keywords (e.g., "read email," "send email," "add event," "search").
 - **Email Nodes**: IMAP/SMTP or Gmail nodes for email reading and sending.
@@ -67,8 +67,8 @@ The workflow (`workflow.json`) includes the following nodes:
 - `search [query]`: Performs a web search and returns results.
 
 ## File Structure
-- `workflow.json`: The n8n workflow configuration file.
-- `README.md`: This file, providing project documentation.
+- `Cat AI Assistant workflow`: The n8n workflow configuration file.
+- `README.md`: This file provides project documentation.
 
 ## Usage
 1. Send a command via Telegram to your bot (e.g., `search n8n automation`).
@@ -88,8 +88,7 @@ Contributions are welcome! Please:
 4. Push to the branch (`git push origin feature/your-feature`).
 5. Open a pull request.
 
-## License
-This project is licensed under the [MIT License](LICENSE).
 
 ## Contact
 For questions or support, reach out via [GitHub Issues](https://github.com/your-username/personal-ai-assistant/issues) or contact me on Discord/Telegram.
+
